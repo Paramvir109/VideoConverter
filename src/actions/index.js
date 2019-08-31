@@ -10,18 +10,19 @@ export const addVideos = videos => dispatch => {
 };
 
 
-// TODO: Communicate to MainWindow that the user wants
-// to start converting videos.  Also listen for feedback
-// from the MainWindow regarding the current state of
-// conversion.
-export const convertVideos = () => (dispatch, getState) => {
+export const convertVideos = (videos) => (dispatch) => {
+  ipcRenderer.send('conversion:start', videos);
+  ipcRenderer.on('conversion:progress',(event, {video, timemark}) => {
+    dispatch({type : VIDEO_PROGRESS,payload: {...video, timemark}});
+  })
+  ipcRenderer.on('conversion:complete',(event, {video, outputPath}) => {
+    dispatch({type : VIDEO_COMPLETE,payload: {...video, outputPath}});
+  })
 
 };
 
-// TODO: Open the folder that the newly created video
-// exists in
 export const showInFolder = outputPath => dispatch => {
-
+  ipcRenderer.send('file:openlocation', outputPath);
 };
 
 export const addVideo = video => {
